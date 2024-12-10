@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Coach</title>
+    <style>
+        .chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header {
+            background-color: #f8fafc;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #1a202c;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+
+        .assistant {
+            margin-right: auto;
+        }
+
+        .user {
+            margin-left: auto;
+        }
+
+        .message-content {
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .assistant .message-content {
+            background-color: #f7f7f7;
+            color: #1a202c;
+        }
+
+        .user .message-content {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .send-button {
+            padding: 10px 20px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .typing {
+            padding: 10px 15px;
+            background-color: #f7f7f7;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #64748b;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>AI Career Coach</h2>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                <div class="message-content">
+                    Hi! I'm your AI career coach. I can help you with resume reviews, interview preparation, career planning, and more. What would you like assistance with today?
+                </div>
+            </div>
+        </div>
+        <div id="typing" class="message assistant typing">
+            <div class="message-content">Typing...</div>
+        </div>
+        <div class="chat-input">
+            <form class="input-form" id="messageForm">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type your message..." />
+                <button type="submit" class="send-button">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const typingIndicator = document.getElementById('typing');
+
+        // Mock responses based on keywords
+        const mockResponses = {
+            'resume': "I'd be happy to review your resume. Please share it with me and I'll provide feedback on its structure, content, and impact.",
+            'interview': "Let's prepare for your interview. What role are you interviewing for? We can practice common questions and develop strong responses.",
+            'career': "I'll help you plan your career path. What's your current role and where would you like to be in 5 years?",
+            'salary': "I can help you with salary negotiation strategies. What's the industry and position you're targeting?",
+            'skills': "Let's assess your current skills and identify areas for growth. What's your current field of work?"
+        };
+
+        function addMessage(content, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        async function generateResponse(userMessage) {
+            // Simple keyword matching
+            const lowercaseMessage = userMessage.toLowerCase();
+            let response = "I understand you're looking for guidance. Could you provide more specific details about what you'd like help with?";
+
+            for (const [keyword, reply] of Object.entries(mockResponses)) {
+                if (lowercaseMessage.includes(keyword)) {
+                    response = reply;
+                    break;
+                }
+            }
+
+            return response;
+        }
+
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            messageInput.value = '';
+
+            // Show typing indicator
+            showTyping();
+
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Generate and add response
+            const response = await generateResponse(message);
+            hideTyping();
+            addMessage(response, false);
+        });
+    </script>
+</body>
+</html>
